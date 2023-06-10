@@ -20,32 +20,39 @@ type QuestionObject = {
 };
 
 const Game = () => {
-  const difficulty: string = "easy";
-  const category: string = "science";
   const numberOfQuestions: number = 20;
   const [questions, setQuestions] = useState<Record<string, QuestionObject>>(
     {}
   );
   const [currentQuestion, setCurrentQuestion] = useState(0);
 
-  useEffect(() => {
-    fetch(
-      `https://the-trivia-api.com/v2/questions?limit=${numberOfQuestions}&categories=${category}&difficulties=${difficulty}`
-    )
-      .then((res) => res.json())
-      .then((data) => setQuestions(data));
-  }, []);
-
-  console.log(questions);
-
   /* handle the click on next question */
   function handleNextQuestion(): void {
     setCurrentQuestion((prev) => prev + 1);
   }
 
+  /* handle the click on search questions button */
+  function handleSearch(event: React.FormEvent<HTMLFormElement>): void {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const categoryElement = form.querySelector(
+      'select[name="category"]'
+    ) as HTMLSelectElement;
+    const difficultyElement = form.querySelector(
+      'select[name="difficulty"]'
+    ) as HTMLSelectElement;
+    const category: string = categoryElement.value;
+    const difficulty: string = difficultyElement.value;
+    fetch(
+      `https://the-trivia-api.com/v2/questions?limit=${numberOfQuestions}&categories=${category}&difficulties=${difficulty}`
+    )
+      .then((res) => res.json())
+      .then((data) => setQuestions(data));
+  }
+
   return (
     <main>
-      <Form></Form>
+      <Form handleSearch={handleSearch}></Form>
       <Question
         questions={questions}
         currentQuestion={currentQuestion}

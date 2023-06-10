@@ -1,3 +1,5 @@
+import { useState } from "react";
+import shuffleArray from "../helpers/shuffleArrayWithIndex";
 import shuffleArrayWithIndex from "../helpers/shuffleArrayWithIndex";
 
 type qObject = {
@@ -28,29 +30,39 @@ const Question: React.FunctionComponent<QuestionProps> = ({
   currentQuestion,
   handleNextQuestion,
 }) => {
-  let answerArray: string[] =
-    Object.keys(questions).length === 0
-      ? ["X,X,X,X"]
-      : [
-          questions[`${currentQuestion}`]["correctAnswer"],
-          ...questions[`${currentQuestion}`]["incorrectAnswers"],
-        ];
+  const [answerSelected, setAnswerSelected] = useState(false);
 
-  let shuffledArray = shuffleArrayWithIndex(answerArray);
-  let correctIndex =
-    Object.keys(questions).length === 0
-      ? 0
-      : shuffledArray.indexOf(questions[`${currentQuestion}`]["correctAnswer"]);
-  console.log(correctIndex);
+  function handleSelection(index: number): void {
+    console.log(correctIndex == index ? "Correct answer" : "Wrong answer");
+  }
+
+  let shuffledArray: string[] = [];
+  let correctIndex: number = -1;
+
+  if (Object.keys(questions).length !== 0) {
+    const currentQuestionData = questions[currentQuestion];
+    if (currentQuestionData) {
+      const answerArray: string[] = [
+        currentQuestionData.correctAnswer,
+        ...currentQuestionData.incorrectAnswers,
+      ];
+      shuffledArray = shuffleArrayWithIndex(answerArray);
+      correctIndex = shuffledArray.indexOf(currentQuestionData.correctAnswer);
+      console.log(correctIndex);
+    }
+  }
 
   return Object.keys(questions).length === 0 ? (
-    <h1>Error</h1>
+    <h1>Select a category and a level od difficulty por the quiz</h1>
   ) : (
     <>
+      <h2>{`Question ${currentQuestion + 1} of 20`}</h2>
       <p>{questions[`${currentQuestion}`]["question"]["text"]}</p>
       <ul>
         {shuffledArray.map((elem, index) => (
-          <li key={index}>{`${index + 1}) ${elem}`}</li>
+          <li key={index} onClick={() => handleSelection(index)}>{`${
+            index + 1
+          }) ${elem}`}</li>
         ))}
       </ul>
       <button onClick={handleNextQuestion}>Next Question</button>
