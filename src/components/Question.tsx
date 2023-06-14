@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import shuffleArray from "../helpers/shuffleArrayWithIndex";
 import shuffleArrayWithIndex from "../helpers/shuffleArrayWithIndex";
 
@@ -30,11 +30,10 @@ const Question: React.FunctionComponent<QuestionProps> = ({
   currentQuestion,
   handleNextQuestion,
 }) => {
-  const [answerSelected, setAnswerSelected] = useState(false);
+  const [isSelected, setIsSelected] = useState([false, false, false, false]);
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
-  function handleSelection(index: number): void {
-    console.log(correctIndex == index ? "Correct answer" : "Wrong answer");
-  }
+  let selectedAnswer: boolean = isSelected.some((elem) => elem == true);
 
   let shuffledArray: string[] = [];
   let correctIndex: number = -1;
@@ -52,21 +51,51 @@ const Question: React.FunctionComponent<QuestionProps> = ({
     }
   }
 
+  function handleClick(index: number): void {
+    let newSelection: boolean[] = [false, false, false, false];
+    newSelection[index] = true;
+    setIsSelected(newSelection);
+  }
+
+  function handleSelection(): void {
+    setIsSubmitted(true);
+    setIsSelected([false, false, false, false]);
+  }
+
   return Object.keys(questions).length === 0 ? (
-    <h1>Select a category and a level od difficulty por the quiz</h1>
+    <section className="question-section">
+      <h1>Select a category and a level od difficulty por the quiz</h1>
+    </section>
   ) : (
-    <>
-      <h2>{`Question ${currentQuestion + 1} of 20`}</h2>
+    <section className="question-section">
+      <h2>
+        Question <strong>{currentQuestion + 1}</strong> of 20
+      </h2>
       <p>{questions[`${currentQuestion}`]["question"]["text"]}</p>
-      <ul>
+      <ul className={isSubmitted ? "regular-ul disabled" : "regular-ul"}>
         {shuffledArray.map((elem, index) => (
-          <li key={index} onClick={() => handleSelection(index)}>{`${
-            index + 1
-          }) ${elem}`}</li>
+          <li
+            key={index}
+            className={isSelected[index] ? "options selection" : "options"}
+            onClick={() => handleClick(index)}
+          >{`${index + 1}) ${elem}`}</li>
         ))}
       </ul>
-      <button onClick={handleNextQuestion}>Next Question</button>
-    </>
+      <button
+        className="btn-select-answer"
+        onClick={handleSelection}
+        disabled={!selectedAnswer}
+      >
+        Select Answer
+      </button>
+      <button
+        className="btn-next-question"
+        onClick={handleNextQuestion}
+        disabled={!isSubmitted}
+      >
+        Next Question
+      </button>
+    </section>
   );
 };
 
